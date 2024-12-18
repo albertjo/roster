@@ -14,6 +14,7 @@ struct ContentView: View {
             ProspectView()
                 .tabItem {
                     Label("Prospects", systemImage: "sparkle")
+                        .font(.mediumFont(.caption))
                 }
                 .tag(1)
 
@@ -43,11 +44,10 @@ struct RosterView: View {
                 }
             }
             .padding()
-            .navigationTitle("Roster")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add") { }
-                        .buttonStyle(.borderedProminent)
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Roster")
+                        .font(.logoFont(.largeTitle))
                 }
             }
         }
@@ -58,14 +58,15 @@ struct RosterCardView: View {
     let rosterMember: RosterMember
 
     var body: some View {
-        //let isProspect = rosterMember.memberType == .prospect
+        let isProspect = rosterMember.memberType == .prospect
 
         HStack {
-            Circle().frame(height: 60)
+            Circle().fill(.white.opacity(0.1)).frame(height: 60)
 
             VStack(alignment: .leading, spacing: 5) {
                 Text(rosterMember.name)
-                    .fontWeight(.semibold)
+                    .font(.semiboldFont(.body))
+                    .foregroundStyle(.white)
                 /*
                 Text("📆 5")
                     .foregroundStyle(.white)
@@ -74,23 +75,24 @@ struct RosterCardView: View {
                 */
 
                 Text("Last Interacted 7 Days Ago")
-                    .font(.caption)
+                    .font(.mediumFont(.footnote))
                     .foregroundStyle(.white.opacity(0.5))
             }
             Spacer()
 
+            let statusColor: Color = rosterMember.health?.color ?? rosterMember.stage?.color ?? .blue
             Group {
-                if let health = rosterMember.health {
+                if !isProspect, let health = rosterMember.health {
                     Text(health.rawValue)
                 } else if let stage = rosterMember.stage {
                     Text(stage.rawValue)
                 }
             }
-            .font(.subheadline)
-            .foregroundStyle(.green)
+            .font(.mediumFont(.caption))
+            .foregroundStyle(statusColor)
             .padding(.vertical, 4)
             .padding(.horizontal, 8)
-            .background(.green.opacity(0.1))
+            .background(statusColor.opacity(0.1))
             .clipShape(.capsule)
         }
         .frame(maxWidth: .infinity)
@@ -113,7 +115,12 @@ struct ProspectView: View {
                 }
             }
             .padding()
-            .navigationTitle("Prospects")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Prospects")
+                        .font(.logoFont(.largeTitle))
+                }
+            }
         }
     }
 }
@@ -131,115 +138,36 @@ struct SettingsView: View {
     }
 }
 
-struct RosterDetailView: View {
-    @EnvironmentObject var rosterStore: RosterStore
-    let rosterMember: RosterMember
+extension Date {
+    var longDateString: String {
+        self.formatted(.dateTime.month(.abbreviated).day().year())
+    }
 
-    var body: some View {
-        List {
-            Section {
-                Circle().fill(.white.opacity(0.2)).frame(height: UIScreen.main.bounds.width / 2)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .listRowBackground(Color.clear)  // Makes row background transparent
-                    .listRowInsets(EdgeInsets())
-            }
+    var relativeString: String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day], from: self, to: now)
 
-
-            HStack {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(rosterMember.name)
-                        .fontWeight(.semibold)
-                        .font(.title)
-
-                    Text("Gym")
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        .background(.blue.opacity(0.1))
-                        .clipShape(.capsule)
-                }
-            }
-
-            Section {
-                NavigationLink {
-                    Text("Navigated")
-                } label: {
-                    HStack {
-                        Text("Instagram")
-                        Spacer()
-                        if let instagramHandle = rosterMember.contact.instagramHandle {
-                            Text("@\(instagramHandle)")
-                        } else {
-                            Text("Add")
-                        }
-                    }
-                }
-
-                NavigationLink {
-                    Text("Navigated")
-                } label: {
-                    HStack {
-                        Text("Snapchat")
-                        Spacer()
-                        if let snapchatHandle = rosterMember.contact.snapchatHandle {
-                            Text("@\(snapchatHandle)")
-                        } else {
-                            Text("Add")
-                        }
-                    }
-                }
-            } header: {
-
-            }
-
-            Section {
-                VStack {
-                    Button("Add Date") {
-
-                    }
-                    .fontWeight(.medium)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(.gray.opacity(0.2))
-                    .cornerRadius(10)
-
-                    Spacer().frame(height: 20)
-
-                    Text("No Dates Yet 🥀")
-                        .foregroundStyle(.white.opacity(0.5))
-                }
-            } header: {
-                VStack {
-                    HStack {
-                        Text("Dates")
-                            .font(.title2)
-
-                        Spacer()
-
-                        Button("See All") {
-                            // Action
-                        }
-                        .foregroundColor(.blue)
-                    }
-                    .textCase(nil)
-
-                    Spacer().frame(height: 10)
-                }
-            }
-            .listRowBackground(Color.clear)  // Makes row background transparent
-            .listRowInsets(EdgeInsets())
-
-        }
-        .navigationTitle(rosterMember.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Label("More", systemImage: "ellipsis")
-                    .labelStyle(.iconOnly)
+        if let daysAgo = components.day {
+            if daysAgo == 0 {
+                return "Today"
+            } else if daysAgo == 1 {
+                return "Yesterday"
+            } else if daysAgo < 7 {
+                return "\(daysAgo) days ago"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMM dd, yyyy"
+                formatter.locale = Locale(identifier: "en_US")
+                return formatter.string(from: self).uppercased()
             }
         }
+
+        // Fallback in case of error calculating components
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd, yyyy"
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: self).uppercased()
     }
 }
 
