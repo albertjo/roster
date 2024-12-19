@@ -106,7 +106,6 @@ struct RosterDetailView: View {
                             }
 
                             if let phoneNumber = member.contact.phoneNumber {
-
                             }
                         }
 

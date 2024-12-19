@@ -101,11 +101,11 @@ enum MemberSource: String, Codable, CaseIterable {
     case work
     case school
     case gym
-    case coffee
+    case cafe
     case grocery
-    case mutualFriends
+    case mutualFriends = "mutual friends"
 
-    enum Category: String {
+    enum Category: String, CaseIterable {
         case datingApps = "Dating Apps"
         case socialMedia = "Social Media"
         case irlSocial = "IRL Social"
@@ -120,8 +120,37 @@ enum MemberSource: String, Codable, CaseIterable {
             return .socialMedia
         case .bar, .club, .concert, .festival, .party, .wedding:
             return .irlSocial
-        case .work, .school, .gym, .coffee, .grocery, .mutualFriends:
+        case .work, .school, .gym, .cafe, .grocery, .mutualFriends:
             return .irlDaily
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        // Social Networks
+        case .instagram: return "📸"
+        case .snapchat: return "👻"
+        case .discord: return "🎮"
+        case .reddit: return "🤖"
+
+        // IRL - Social
+        case .bar: return "🍺"
+        case .club: return "🪩"
+        case .concert: return "🎸"
+        case .festival: return "🎪"
+        case .party: return "🎉"
+        case .wedding: return "💒"
+
+        // IRL - Daily Life
+        case .work: return "💼"
+        case .school: return "📚"
+        case .gym: return "💪"
+        case .cafe: return "☕️"
+        case .grocery: return "🛒"
+        case .mutualFriends: return "👥"
+
+        // Dating Apps - Default emoji
+        default: return "❤️"
         }
     }
 
