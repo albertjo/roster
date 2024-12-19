@@ -60,21 +60,24 @@ struct RosterDetailView: View {
                             )
                     }
 
-                    HStack(spacing: 10) {
+                    HStack(spacing: 20) {
                         if let igHandle = rosterMember.contact.instagramHandle,
                            let igProfileURL = URL(string: "https://instagram.com/\(igHandle)") {
                             Button {
                                 UIApplication.shared.open(igProfileURL)
                             } label: {
-                                Image("instagram_logo")
-                                    .resizable()
-                                    .interpolation(.high)
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 16, height: 16)
-                                    .foregroundStyle(.white.opacity(0.7))
+                                HStack {
+                                    Image("instagram_logo")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 16, height: 16)
+                                    Text("@\(igHandle)")
+                                        .font(.mediumFont(.caption))
+                                }
+                                .foregroundStyle(.white.opacity(0.7))
                             }
-                            .buttonStyle(.plain)  // Removes default button styling
-                            .frame(width: 16, height: 16)
+
                         }
 
                         if let snapchatHandle = rosterMember.contact.snapchatHandle,
@@ -82,23 +85,34 @@ struct RosterDetailView: View {
                             Button {
                                 UIApplication.shared.open(snapchatURL)
                             } label: {
-                                Image("snapchat_logo")
-                                    .resizable()
-                                    .interpolation(.high)
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 20, height: 20)
-                                    .foregroundStyle(.white.opacity(0.7))
+                                HStack {
+                                    Image("snapchat_logo")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 18, height: 18)
+
+                                    Text("@\(snapchatHandle)")
+                                        .font(.mediumFont(.caption))
+                                }
+                                .foregroundStyle(.white.opacity(0.7))
                             }
-                            .buttonStyle(.plain)  // Removes default button styling
-                            .frame(width: 20, height: 20)
+                        }
+
+                        if let phoneNumber = rosterMember.contact.phoneNumber {
+                            
                         }
                     }
 
-                    if isRosterMember, let upgradedDate = rosterMember.upgradedDate {
-                        Text("On Rotation Since \(upgradedDate.longDateString)")
-                            .font(.mediumFont(.caption))
-                            .foregroundStyle(.white.opacity(0.5))
+                    Group {
+                        if isRosterMember, let upgradedDate = rosterMember.upgradedDate {
+                            Text("On Rotation Since \(upgradedDate.longDateString)")
+                        } else {
+                            Text("Added on \(rosterMember.createdAt.longDateString)")
+                        }
                     }
+                    .font(.mediumFont(.caption))
+                    .foregroundStyle(.white.opacity(0.5))
                 }
             }
             .listRowBackground(Color.clear)  // Makes row background transparent
@@ -160,28 +174,8 @@ struct RosterDetailView: View {
                             .foregroundStyle(.white.opacity(0.5))
                     } else {
                         VStack(spacing: 20) {
-                            ForEach(rosterMember.dates, id: \.id) { date in
-                                VStack(alignment: .leading) {
-                                    Text(date.date.relativeString)
-                                        .font(.mediumFont(.caption))
-                                        .foregroundStyle(.white.opacity(0.5))
-                                    Text(date.notes)
-                                        .font(.mediumFont(.subheadline))
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                                    HStack {
-
-                                    }
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(.gray.opacity(0.2))
-                                .cornerRadius(10)
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .strokeBorder(.gray.opacity(0.3), lineWidth: 1)
-                                }
+                            ForEach(rosterMember.dates.prefix(5), id: \.id) { date in
+                                DateNavigationLink(date: date)
                             }
                         }
                     }
@@ -196,10 +190,11 @@ struct RosterDetailView: View {
 
                         Spacer()
 
-                        Button("See All") {
-                            // Action
+                        NavigationLink("See All") {
+                            DatesView(rosterMember: rosterMember)
                         }
                         .foregroundColor(.white)
+                        .disabled(rosterMember.dates.isEmpty)
                     }
                     .textCase(nil)
 
@@ -281,6 +276,43 @@ struct AddressView: View {
     }
 }
 
+struct DatesView: View {
+    @EnvironmentObject var rosterStore: RosterStore
+    let rosterMember: RosterMember
+    @State var dates: [RosterDate] = []
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                ForEach(dates, id: \.id) { date in
+                    DateNavigationLink(date: date)
+                }
+            }
+        }
+        .padding()
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Dates")
+                    .font(.mediumFont(.body))
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+
+                } label: {
+                    Label("Add Date", systemImage: "plus")
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                }
+                .tint(.white)
+            }
+        }
+        .task {
+            dates = rosterMember.dates
+        }
+    }
+}
 
 #Preview {
     let _ = RosterStore.loadSampleData()

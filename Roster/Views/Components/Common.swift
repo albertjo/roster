@@ -22,12 +22,12 @@ struct DataBadge: View {
     var body: some View {
         Text(string)
             .font(.mediumFont(.caption))
-            .foregroundStyle(.white.opacity(0.4))
+            .foregroundStyle(.white)
             .padding(.vertical, 6)
             .padding(.horizontal, 12)
             .overlay(
                 Capsule()
-                    .strokeBorder(.gray.opacity(0.3), lineWidth: 1)
+                    .fill(.white.opacity(0.1))
             )
     }
 }

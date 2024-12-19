@@ -64,9 +64,17 @@ struct RosterCardView: View {
             Circle().fill(.white.opacity(0.1)).frame(height: 60)
 
             VStack(alignment: .leading, spacing: 5) {
-                Text(rosterMember.name)
-                    .font(.semiboldFont(.body))
-                    .foregroundStyle(.white)
+                HStack {
+                    Text(rosterMember.name)
+                        .font(.semiboldFont(.body))
+                        .foregroundStyle(.white)
+
+                    if rosterMember.memberType == .rosterMember {
+                        Image(systemName: "checkmark.seal.fill")  // For roster status
+                            .foregroundColor(.blue)
+                            .font(.subheadline)
+                    }
+                }
                 /*
                 Text("📆 5")
                     .foregroundStyle(.white)
@@ -74,26 +82,15 @@ struct RosterCardView: View {
                     .fontWeight(.semibold)
                 */
 
-                Text("Last Interacted 7 Days Ago")
+                Text("7 Days Ago")
                     .font(.mediumFont(.footnote))
                     .foregroundStyle(.white.opacity(0.5))
             }
             Spacer()
 
-            let statusColor: Color = rosterMember.health?.color ?? rosterMember.stage?.color ?? .blue
-            Group {
-                if !isProspect, let health = rosterMember.health {
-                    Text(health.rawValue)
-                } else if let stage = rosterMember.stage {
-                    Text(stage.rawValue)
-                }
+            if !isProspect, let health = rosterMember.health {
+                HealthIndicator(health: health)
             }
-            .font(.mediumFont(.caption))
-            .foregroundStyle(statusColor)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 8)
-            .background(statusColor.opacity(0.1))
-            .clipShape(.capsule)
         }
         .frame(maxWidth: .infinity)
         .padding()
@@ -110,7 +107,11 @@ struct ProspectView: View {
             ScrollView {
                 LazyVStack(spacing: 10) {
                     ForEach(rosterStore.prospects) { prospect in
-                        RosterCardView(rosterMember: prospect)
+                        NavigationLink {
+                            RosterDetailView(rosterMember: prospect)
+                        } label: {
+                            RosterCardView(rosterMember: prospect)
+                        }
                     }
                 }
             }

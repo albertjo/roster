@@ -22,12 +22,14 @@ struct RosterMember: Identifiable {
     var contact: Contact
     var labels: Set<String>
     var dates: [RosterDate]
+    var createdAt: Date
+    var updatedAt: Date
 }
 
 struct RosterDate: Identifiable {
     let id: UUID
     var date: Date
-    var vibe: String
+    var vibe: DateVibe
     var intimacyLevel: IntimacyLevel
     var spentAmount: Double?
     var notes: String
@@ -138,8 +140,8 @@ enum IntimacyLevel: String, Codable {
     var pillText: String? {
         switch self {
         case .none: nil
-        case .kissing: "Kiss 💋"
-        case .hookup: "Hookup 🩵"
+        case .kissing: "Kissed 💋"
+        case .hookup: "Hooked Up 🩵"
         case .overnight: "Stayed Over 🌙"
         }
     }
@@ -178,7 +180,7 @@ extension RosterStore {
                     RosterDate(
                         id: UUID(),
                         date: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
-                        vibe: "amazing",
+                        vibe: .amazing,
                         intimacyLevel: .overnight,
                         spentAmount: 85.0,
                         notes: "Dinner at Italian place, then drinks at rooftop bar"
@@ -186,12 +188,14 @@ extension RosterStore {
                     RosterDate(
                         id: UUID(),
                         date: Calendar.current.date(byAdding: .day, value: -21, to: Date())!,
-                        vibe: "good",
+                        vibe: .good,
                         intimacyLevel: .hookup,
                         spentAmount: 40.0,
                         notes: "Coffee and walk in the park, came over after"
                     )
-                ]
+                ],
+                createdAt: Date(),
+                updatedAt: Date()
             ),
             RosterMember(
                 id: UUID(),
@@ -220,12 +224,14 @@ extension RosterStore {
                     RosterDate(
                         id: UUID(),
                         date: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
-                        vibe: "good",
+                        vibe: .good,
                         intimacyLevel: .kissing,
                         spentAmount: 60.0,
                         notes: "Vegan restaurant and art gallery"
                     )
-                ]
+                ],
+                createdAt: Date(),
+                updatedAt: Date()
             )
         ]
 
@@ -253,7 +259,9 @@ extension RosterStore {
                     updatedAt: "2024-03-17"
                 ),
                 labels: ["Friend of Friend", "Doctor"],
-                dates: []
+                dates: [],
+                createdAt: Date(),
+                updatedAt: Date()
             ),
             RosterMember(
                 id: UUID(),
@@ -277,7 +285,9 @@ extension RosterStore {
                     updatedAt: "2024-03-16"
                 ),
                 labels: ["Finance", "Gym"],
-                dates: []
+                dates: [],
+                createdAt: Date(),
+                updatedAt: Date()
             ),
             RosterMember(
                 id: UUID(),
@@ -301,7 +311,9 @@ extension RosterStore {
                     updatedAt: "2024-03-18"
                 ),
                 labels: ["Met IRL", "Bartender"],
-                dates: []
+                dates: [],
+                createdAt: Date(),
+                updatedAt: Date()
             )
         ]
 
