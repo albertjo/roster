@@ -358,7 +358,17 @@ class MemberFormViewModel: ObservableObject {
             member.updatedAt = Date()
             store.update(member: member)
         default:
-            print("Create")
+            let newMember = RosterMember(id: UUID(),
+                                         name: name,
+                                         memberType: memberType,
+                                         source: source,
+                                         notes: notes,
+                                         contact: contact,
+                                         labels: labels,
+                                         dates: [],
+                                         createdAt: Date(),
+                                         updatedAt: Date())
+            store.create(member: newMember)
         }
     }
 }

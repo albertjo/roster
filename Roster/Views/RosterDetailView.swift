@@ -172,8 +172,8 @@ struct RosterDetailView: View {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Label("More", systemImage: "square.and.pencil")
-                            .labelStyle(.iconOnly)
+                        Label("Edit", systemImage: "square.and.pencil")
+                            .labelStyle(.titleOnly)
                             .fontWeight(.medium)
                     }
                     .tint(.white)

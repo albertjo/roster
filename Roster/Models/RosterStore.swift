@@ -11,6 +11,14 @@ class RosterStore: ObservableObject {
         roster.first { $0.id == id } ?? prospects.first { $0.id == id }
     }
 
+    func create(member: RosterMember) {
+        if member.memberType == .rosterMember {
+            roster.insert(member, at: 0)
+        } else {
+            prospects.insert(member, at: 0)
+        }
+    }
+
     func update(member: RosterMember) {
         if member.memberType == .rosterMember {
             if let index = roster.firstIndex(where: { $0.id == member.id }) {
@@ -70,8 +78,8 @@ struct Contact: Identifiable {
 
 // MARK: - Enums
 enum MemberType: String, Codable {
-    case prospect
-    case rosterMember
+    case prospect = "Prospect"
+    case rosterMember = "Roster Member"
 }
 
 enum MemberSource: String, Codable, CaseIterable {

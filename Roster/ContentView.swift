@@ -3,6 +3,18 @@ import SwiftUI
 struct ContentView: View {
     @State var selectedTab = 0
 
+    init() {
+        let customFont = UIFont(name: "Poppins-SemiBold", size: UIFont.preferredFont(forTextStyle: .caption2).pointSize)!
+        let appearance = UITabBarAppearance()
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .font: customFont
+        ]
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .font: customFont
+        ]
+        UITabBar.appearance().standardAppearance = appearance
+    }
+
     var body: some View {
         TabView(selection: $selectedTab, content: {
             RosterView()
@@ -24,6 +36,7 @@ struct ContentView: View {
                 }
                 .tag(2)
         })
+        .tint(.white)
     }
 }
 
@@ -48,6 +61,10 @@ struct RosterView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Text("Roster")
                         .font(.logoFont(.largeTitle))
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    CreateMenu()
                 }
             }
         }
@@ -137,6 +154,42 @@ struct SettingsView: View {
 
             }
             .navigationTitle("Settings")
+        }
+    }
+}
+
+struct CreateMenu: View {
+    enum ObjectToCreate: CaseIterable {
+        case rosterMember
+        case prospect
+    }
+
+    @State private var objectToCreate: ObjectToCreate = .rosterMember
+    @State private var showingFormView = false
+
+    var body: some View {
+        Menu {
+            Button("New Roster Member") {
+                objectToCreate = .rosterMember
+                showingFormView = true
+            }
+
+            Button("New Prospect") {
+                objectToCreate = .prospect
+                showingFormView = true
+            }
+        } label: {
+            Image(systemName: "plus")
+                .fontWeight(.bold)
+        }
+        .tint(.white)
+        .sheet(isPresented: $showingFormView) {
+            switch objectToCreate {
+            case .rosterMember:
+                RosterMemberFormView(mode: .creating(.rosterMember))
+            case .prospect:
+                RosterMemberFormView(mode: .creating(.prospect))
+            }
         }
     }
 }
