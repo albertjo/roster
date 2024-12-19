@@ -41,7 +41,7 @@ struct RosterMember: Identifiable {
     var upgradedDate: Date?
     var lastInteractionDate: Date?
     var source: MemberSource // Bar, Club, Hinge, Etc
-    var stage: ProspectStage?
+    var stage: ProspectStage
     var health: RosterMemberHealth? //
     var notes: String
     var contact: Contact
@@ -167,7 +167,7 @@ enum MemberSource: String, Codable, CaseIterable {
     }
 }
 
-enum ProspectStage: String, Codable {
+enum ProspectStage: String, Codable, CaseIterable {
     case matched    // Initial match/connection
     case talking    // Actively messaging/texting
     case scheduled  // First date planned
@@ -187,6 +187,20 @@ enum ProspectStage: String, Codable {
         case .cut:
             return .gray        // #8E8E93 - Neutral ending
         }
+    }
+
+    var emoji: String {
+        switch self {
+        case .matched:    return "✨"
+        case .talking:    return "💬"
+        case .scheduled:  return "🕒"
+        case .met:        return "👋"
+        case .cut:        return "🗑️"
+        }
+    }
+
+    var emojiText: String {
+        return "\(emoji) \(rawValue)"
     }
 }
 

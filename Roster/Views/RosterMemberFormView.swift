@@ -40,6 +40,10 @@ struct RosterMemberFormView: View {
                     BirthdayDatePicker(birthday: $memberFormViewModel.birthday)
 
                     MemberSourcePicker(source: $memberFormViewModel.source)
+
+                    if memberFormViewModel.memberType == .prospect {
+                        ProspectStagePicker(stage: $memberFormViewModel.prospectStage)
+                    }
                 }
 
                 Section("Contact") {
@@ -218,6 +222,48 @@ private struct MemberSourcePicker: View {
     }
 }
 
+private struct ProspectStagePicker: View {
+    @Binding var stage: ProspectStage
+    @State var showingSheet = false
+
+    var body: some View {
+        LabeledContent("Prospect Stage") {
+            Button {
+                showingSheet = true
+            } label: {
+                Text(stage.emojiText)
+            }
+            .tint(.white)
+        }
+        .sheet(isPresented: $showingSheet) {
+            NavigationStack {
+                VStack {
+                    ForEach(ProspectStage.allCases, id: \.self) { prospectStage in
+                        Button {
+                            stage = prospectStage
+                            showingSheet = false
+                        } label: {
+                            HStack {
+                                Text(prospectStage.emojiText)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(stage == prospectStage ? .white.opacity(0.1) : .clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))  // Add this line
+                        }
+                        .tint(.white)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle("Prospect Stage")
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium])
+        }
+    }
+}
+
 enum MemberFormMode {
     case creating(MemberType)
     case updating(RosterMember)
@@ -234,7 +280,7 @@ class MemberFormViewModel: ObservableObject {
     @Published var upgradedDate: Date?
     @Published var lastInteractionDate: Date?
     @Published var source: MemberSource
-    @Published var prospectStage: ProspectStage?
+    @Published var prospectStage: ProspectStage
     @Published var health: RosterMemberHealth?
     @Published var notes: String
     @Published var contact: Contact
@@ -289,14 +335,6 @@ class MemberFormViewModel: ObservableObject {
         Binding(
             get: { self.avatarURL },
             set: { self.avatarURL = $0 }
-        )
-    }
-
-    // Enum bindings
-    var prospectStageBinding: Binding<ProspectStage?> {
-        Binding(
-            get: { self.prospectStage },
-            set: { self.prospectStage = $0 }
         )
     }
 
@@ -362,6 +400,7 @@ class MemberFormViewModel: ObservableObject {
                                          name: name,
                                          memberType: memberType,
                                          source: source,
+                                         stage: prospectStage,
                                          notes: notes,
                                          contact: contact,
                                          labels: labels,

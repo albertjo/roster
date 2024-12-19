@@ -41,8 +41,8 @@ struct RosterDetailView: View {
                             if member.memberType == .rosterMember,
                                let health = member.health {
                                 HealthIndicator(health: health)
-                            } else if let prospectStage = member.stage {
-                                ProspectStageIndicator(stage: prospectStage)
+                            } else {
+                                ProspectStageIndicator(stage: member.stage)
                             }
 
                             if let age = member.age {

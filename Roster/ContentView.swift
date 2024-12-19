@@ -107,8 +107,8 @@ struct RosterCardView: View {
 
             if !isProspect, let health = rosterMember.health {
                 HealthIndicator(health: health)
-            } else if let prospectStage = rosterMember.stage {
-                ProspectStageIndicator(stage: prospectStage)
+            } else {
+                ProspectStageIndicator(stage: rosterMember.stage)
             }
         }
         .frame(maxWidth: .infinity)
