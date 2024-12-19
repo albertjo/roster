@@ -6,12 +6,29 @@ class RosterStore: ObservableObject {
     @Published var prospects: [RosterMember] = []
 
     static let shared = RosterStore()
+
+    func member(id: UUID) -> RosterMember? {
+        roster.first { $0.id == id } ?? prospects.first { $0.id == id }
+    }
+
+    func update(member: RosterMember) {
+        if member.memberType == .rosterMember {
+            if let index = roster.firstIndex(where: { $0.id == member.id }) {
+                roster[index] = member
+            }
+        } else {
+            if let index = prospects.firstIndex(where: { $0.id == member.id }) {
+                prospects[index] = member
+            }
+        }
+    }
 }
 
 struct RosterMember: Identifiable {
     let id: UUID
     var name: String
     var avatarURL: URL?
+    var birthday: Date?
     var memberType: MemberType // Roster Member vs. Prospect
     var upgradedDate: Date?
     var lastInteractionDate: Date?
@@ -24,6 +41,11 @@ struct RosterMember: Identifiable {
     var dates: [RosterDate]
     var createdAt: Date
     var updatedAt: Date
+
+    var age: Int? {
+        guard let birthday = birthday else { return nil }
+        return Calendar.current.dateComponents([.year], from: birthday, to: Date()).year
+    }
 }
 
 struct RosterDate: Identifiable {
@@ -42,14 +64,8 @@ struct Contact: Identifiable {
     var tikTokHandle: String?
     var phoneNumber: String?
     var address: String?
-    var birthday: Date?
     var createdAt: Date
-    var updatedAt: String
-
-    var age: Int? {
-        guard let birthday = birthday else { return nil }
-        return Calendar.current.dateComponents([.year], from: birthday, to: Date()).year
-    }
+    var updatedAt: Date
 }
 
 // MARK: - Enums
@@ -157,6 +173,7 @@ extension RosterStore {
                 id: UUID(),
                 name: "Sarah",
                 avatarURL: URL(string: "https://example.com/sarah.jpg"),
+                birthday: Calendar.current.date(byAdding: .year, value: -27, to: Date()),
                 memberType: .rosterMember,
                 upgradedDate: Calendar.current.date(byAdding: .day, value: -45, to: Date()),
                 lastInteractionDate: Calendar.current.date(byAdding: .day, value: -10, to: Date()),
@@ -171,9 +188,8 @@ extension RosterStore {
                     tikTokHandle: nil,
                     phoneNumber: "555-0123",
                     address: "50 West 4th Street, New York, NY, 10012",
-                    birthday: Calendar.current.date(byAdding: .year, value: -27, to: Date()),
                     createdAt: Date(),
-                    updatedAt: "2024-03-15"
+                    updatedAt: Date()
                 ),
                 labels: ["Foodie", "Tech", "Artsy"],
                 dates: [
@@ -201,6 +217,7 @@ extension RosterStore {
                 id: UUID(),
                 name: "Jessica",
                 avatarURL: URL(string: "https://example.com/jessica.jpg"),
+                birthday: Calendar.current.date(byAdding: .year, value: -25, to: Date()),
                 memberType: .rosterMember,
                 upgradedDate: Calendar.current.date(byAdding: .day, value: -30, to: Date()),
                 lastInteractionDate: Calendar.current.date(byAdding: .day, value: -27, to: Date()),
@@ -215,9 +232,8 @@ extension RosterStore {
                     tikTokHandle: "jessj",
                     phoneNumber: "555-0456",
                     address: nil,
-                    birthday: Calendar.current.date(byAdding: .year, value: -25, to: Date()),
                     createdAt: Date(),
-                    updatedAt: "2024-03-10"
+                    updatedAt: Date()
                 ),
                 labels: ["Yoga", "Vegan", "Writer"],
                 dates: [
@@ -241,6 +257,7 @@ extension RosterStore {
                 id: UUID(),
                 name: "Emma",
                 avatarURL: URL(string: "https://example.com/emma.jpg"),
+                birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
                 source: "Friend Introduction",
@@ -253,10 +270,9 @@ extension RosterStore {
                     snapchatHandle: nil,
                     tikTokHandle: nil,
                     phoneNumber: "555-0789",
-                    address: nil,
-                    birthday: nil,
+                    address: "San Francisco",
                     createdAt: Date(),
-                    updatedAt: "2024-03-17"
+                    updatedAt: Date()
                 ),
                 labels: ["Friend of Friend", "Doctor"],
                 dates: [],
@@ -267,6 +283,7 @@ extension RosterStore {
                 id: UUID(),
                 name: "Madison",
                 avatarURL: URL(string: "https://example.com/madison.jpg"),
+                birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
                 source: "Hinge",
@@ -280,9 +297,8 @@ extension RosterStore {
                     tikTokHandle: nil,
                     phoneNumber: nil,
                     address: nil,
-                    birthday: nil,
                     createdAt: Date(),
-                    updatedAt: "2024-03-16"
+                    updatedAt: Date()
                 ),
                 labels: ["Finance", "Gym"],
                 dates: [],
@@ -293,6 +309,7 @@ extension RosterStore {
                 id: UUID(),
                 name: "Olivia",
                 avatarURL: URL(string: "https://example.com/olivia.jpg"),
+                birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
                 source: "Bar",
@@ -306,9 +323,8 @@ extension RosterStore {
                     tikTokHandle: nil,
                     phoneNumber: nil,
                     address: nil,
-                    birthday: nil,
                     createdAt: Date(),
-                    updatedAt: "2024-03-18"
+                    updatedAt: Date()
                 ),
                 labels: ["Met IRL", "Bartender"],
                 dates: [],

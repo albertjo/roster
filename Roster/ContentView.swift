@@ -36,7 +36,7 @@ struct RosterView: View {
                 LazyVStack(spacing: 10) {
                     ForEach(rosterStore.roster) { rosterMember in
                         NavigationLink {
-                            RosterDetailView(rosterMember: rosterMember)
+                            RosterDetailView(memberId: rosterMember.id)
                         } label: {
                             RosterCardView(rosterMember: rosterMember)
                         }
@@ -108,7 +108,7 @@ struct ProspectView: View {
                 LazyVStack(spacing: 10) {
                     ForEach(rosterStore.prospects) { prospect in
                         NavigationLink {
-                            RosterDetailView(rosterMember: prospect)
+                            RosterDetailView(memberId: prospect.id)
                         } label: {
                             RosterCardView(rosterMember: prospect)
                         }

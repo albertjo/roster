@@ -11,6 +11,7 @@ struct DateCardView: View {
                     .foregroundStyle(.white.opacity(0.5))
                 Spacer()
             }
+            
             Text(date.notes)
                 .font(.mediumFont(.subheadline))
                 .foregroundStyle(.white)
