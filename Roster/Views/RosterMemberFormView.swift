@@ -3,9 +3,9 @@ import SwiftUI
 struct RosterMemberFormView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var memberFormViewModel: MemberFormViewModel
+    @StateObject private var contactsManager = ContactsManager()
 
     private var title: String {
-        let memberType = memberFormViewModel.memberType
         if case .creating = memberFormViewModel.mode {
             // This will match any .creating case regardless of the MemberType
             return "New \(memberFormViewModel.memberType.rawValue.capitalizedFirstLetter)"
@@ -43,22 +43,29 @@ struct RosterMemberFormView: View {
                 }
 
                 Section("Contact") {
+                    // TODO
+                    /*
+                    Button("Sync From Contacts") {
+                        contactsManager.requestAccess()
+                    }
+                    */
+
                     LabeledContent("Phone Number") {
-                        TextField("Enter Phone Number", text: $memberFormViewModel.name)
+                        TextField("Enter Phone Number", text: memberFormViewModel.phoneBinding)
                             .textFieldStyle(.plain)
                             .multilineTextAlignment(.trailing)  // Aligns text to right side
                     }
 
                     LabeledContent("Instagram") {
                         HStack(spacing: 0) {
-                            TextField("Enter Instagram", text: $memberFormViewModel.name)
+                            TextField("Enter Instagram", text: memberFormViewModel.instagramBinding)
                                 .textFieldStyle(.plain)
                                 .multilineTextAlignment(.trailing)  // Aligns text to right side
                         }
                     }
 
                     LabeledContent("Snapchat") {
-                        TextField("Enter Name", text: $memberFormViewModel.name)
+                        TextField("Enter Snapchat", text: memberFormViewModel.snapchatBinding)
                             .textFieldStyle(.plain)
                             .multilineTextAlignment(.trailing)  // Aligns text to right side
                     }
@@ -229,6 +236,7 @@ class MemberFormViewModel: ObservableObject {
     @Published var source: MemberSource
     @Published var prospectStage: ProspectStage?
     @Published var health: RosterMemberHealth?
+    @Published var notes: String
     @Published var contact: Contact
     @Published var labels: Set<String>
     @Published var createdAt: Date
@@ -317,6 +325,7 @@ class MemberFormViewModel: ObservableObject {
             self.prospectStage = .matched
             self.health = .active
             self.contact = Contact(id: UUID(), createdAt: Date(), updatedAt: Date())
+            self.notes = ""
             self.labels = []
             self.createdAt = Date()
             self.updatedAt = Date()
@@ -328,6 +337,7 @@ class MemberFormViewModel: ObservableObject {
             self.prospectStage = rosterMember.stage
             self.health = rosterMember.health
             self.contact = rosterMember.contact
+            self.notes = rosterMember.notes
             self.labels = rosterMember.labels
             self.createdAt = rosterMember.createdAt
             self.updatedAt = rosterMember.updatedAt

@@ -41,6 +41,8 @@ struct RosterDetailView: View {
                             if member.memberType == .rosterMember,
                                let health = member.health {
                                 HealthIndicator(health: health)
+                            } else if let prospectStage = member.stage {
+                                ProspectStageIndicator(stage: prospectStage)
                             }
 
                             if let age = member.age {
@@ -131,7 +133,6 @@ struct RosterDetailView: View {
                     .listRowInsets(EdgeInsets())
                 }
 
-
                 Section {
                     HStack {
                         Text(member.notes)
@@ -140,6 +141,8 @@ struct RosterDetailView: View {
                     }
                 } header: {
                     VStack {
+                        Spacer().frame(height: 20)
+
                         HStack {
                             Text("Notes")
                                 .font(.mediumFont(.title2))
@@ -157,57 +160,7 @@ struct RosterDetailView: View {
                     .listRowInsets(EdgeInsets())
                 }
 
-                Section {
-                    VStack {
-                        Button {
-
-                        } label: {
-                            Text("Add Date")
-                                .font(.mediumFont(.subheadline))
-                                .foregroundStyle(.black)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(.white)
-                                .clipShape(.capsule)
-                        }
-
-                        Spacer().frame(height: 20)
-
-                        if member.dates.isEmpty {
-                            Text("No Dates Yet 🥀")
-                                .font(.mediumFont(.caption))
-                                .foregroundStyle(.white.opacity(0.5))
-                        } else {
-                            VStack(spacing: 20) {
-                                ForEach(member.dates.prefix(5), id: \.id) { date in
-                                    DateNavigationLink(date: date)
-                                }
-                            }
-                        }
-
-                        Spacer().frame(height: 40)
-                    }
-                } header: {
-                    VStack {
-                        HStack {
-                            Text("Recent Dates")
-                                .font(.mediumFont(.title2))
-
-                            Spacer()
-
-                            NavigationLink("See All") {
-                                DatesView(rosterMember: member)
-                            }
-                            .foregroundColor(.white)
-                            .disabled(member.dates.isEmpty)
-                        }
-                        .textCase(nil)
-
-                        Spacer().frame(height: 10)
-                    }
-                }
-                .listRowBackground(Color.clear)  // Makes row background transparent
-                .listRowInsets(EdgeInsets())
+                DatesSectionView(memberId: memberId)
             }
             .font(.mediumFont(.subheadline))
             .sheet(isPresented: $showingEditSheet) {
@@ -240,6 +193,7 @@ struct RosterDetailView: View {
             }
         }
     }
+
 }
 
 struct AddressView: View {
@@ -292,6 +246,136 @@ struct AddressView: View {
    }
 }
 
+struct DatesSectionView: View {
+    enum DateType: String, CaseIterable {
+        case future = "📆 Upcoming"
+        case past = "Past"
+    }
+
+    @EnvironmentObject var rosterStore: RosterStore
+    let memberId: UUID
+
+    @State var selectedDateType = DateType.future
+
+    private var futureDates: [RosterDate] {
+        return rosterStore.member(id: memberId)?.dates.filter({ rosterDate in
+            return rosterDate.date.isFutureOrToday
+        }) ?? []
+    }
+
+    private var pastDates: [RosterDate] {
+        return rosterStore.member(id: memberId)?.dates.filter({ rosterDate in
+            return !rosterDate.date.isFutureOrToday
+        }) ?? []
+    }
+
+    var body: some View {
+        if let member = rosterStore.member(id: memberId) {
+            Section {
+                VStack {
+                    Spacer().frame(height: 20)
+
+                    Button {
+
+                    } label: {
+                        Text("Add Date")
+                            .font(.mediumFont(.subheadline))
+                            .foregroundStyle(.black)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(.white)
+                            .clipShape(.capsule)
+                    }
+
+                    Spacer().frame(height: 20)
+
+                    dateTypeToggles
+
+                    Spacer().frame(height: 20)
+
+                    selectedDatesView
+
+                    Spacer().frame(height: 80)
+                }
+            } header: {
+                VStack {
+                    Spacer().frame(height: 20)
+
+                    HStack {
+                        Text("Dates")
+                            .font(.mediumFont(.title2))
+
+                        Spacer()
+
+                        NavigationLink("See All") {
+                            DatesView(rosterMember: member)
+                        }
+                        .tint(.white)
+                        .disabled(member.dates.isEmpty)
+                    }
+                    .textCase(nil)
+                }
+            }
+            .listRowBackground(Color.clear)  // Makes row background transparent
+            .listRowInsets(EdgeInsets())
+        }
+    }
+
+    private var dateTypeToggles: some View {
+        HStack(spacing: 12) {  // Add explicit spacing between buttons
+            ForEach(DateType.allCases, id: \.self) { dateType in
+                Button {
+                    selectedDateType = dateType
+                } label: {
+                    let dates = dateType == .future ? futureDates : pastDates
+                    HStack(spacing: 4) {
+                        Text(dateType.rawValue)
+                            .foregroundColor(.white)
+                        Text("\(dates.count)")
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(selectedDateType == dateType ? .gray.opacity(0.4) : .gray.opacity(0.2))
+                    .overlay {
+                        Capsule()
+                            .strokeBorder(.white.opacity(0.6), lineWidth: selectedDateType == dateType ? 1 : 0)
+                    }
+                    .clipShape(Capsule())
+                }
+                .tint(.white)
+                .buttonStyle(BorderlessButtonStyle())
+            }
+
+            Spacer()
+        }
+    }
+
+    private var selectedDatesView: some View {
+        Group {
+            let dates = selectedDateType == .future ? futureDates : pastDates
+            VStack(spacing: 20) {
+                ForEach(dates, id: \.id) { date in
+                    DateNavigationLink(date: date)
+                }
+            }
+        }
+
+//        if futureDates.isEmpty {
+//            Spacer().frame(height: 20)
+//            Text("No Scheduled Dates Yet 🥀")
+//                .font(.mediumFont(.caption))
+//                .foregroundStyle(.white.opacity(0.5))
+//        } else {
+//            VStack(spacing: 20) {
+//                ForEach(futureDates, id: \.id) { date in
+//                    DateNavigationLink(date: date)
+//                }
+//            }
+//        }
+    }
+}
+
 struct DatesView: View {
     @EnvironmentObject var rosterStore: RosterStore
     let rosterMember: RosterMember
@@ -299,7 +383,7 @@ struct DatesView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 ForEach(dates, id: \.id) { date in
                     DateNavigationLink(date: date)
                 }
@@ -327,6 +411,15 @@ struct DatesView: View {
         .task {
             dates = rosterMember.dates
         }
+    }
+}
+
+extension Date {
+    var isFutureOrToday: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date.now)
+        let dateToCompare = calendar.startOfDay(for: self)
+        return dateToCompare >= today
     }
 }
 

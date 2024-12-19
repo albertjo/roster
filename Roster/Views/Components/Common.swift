@@ -17,6 +17,23 @@ struct HealthIndicator: View {
     }
 }
 
+struct ProspectStageIndicator: View {
+    let stage: ProspectStage
+
+    var body: some View {
+        HStack(spacing: 4) {  // Adjust this value for desired spacing
+            //Image(systemName: stage.icon)
+            Text(stage.rawValue)
+        }
+        .font(.mediumFont(.caption))
+        .foregroundStyle(stage.color)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 12)
+        .background(stage.color.opacity(0.2))
+        .clipShape(.capsule)
+    }
+}
+
 struct DataBadge: View {
     let string: String
     var body: some View {

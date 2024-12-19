@@ -33,7 +33,7 @@ struct RosterView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 10) {
+                VStack(spacing: 10) {
                     ForEach(rosterStore.roster) { rosterMember in
                         NavigationLink {
                             RosterDetailView(memberId: rosterMember.id)
@@ -90,6 +90,8 @@ struct RosterCardView: View {
 
             if !isProspect, let health = rosterMember.health {
                 HealthIndicator(health: health)
+            } else if let prospectStage = rosterMember.stage {
+                ProspectStageIndicator(stage: prospectStage)
             }
         }
         .frame(maxWidth: .infinity)
@@ -105,7 +107,7 @@ struct ProspectView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: 10) {
+                VStack(spacing: 10) {
                     ForEach(rosterStore.prospects) { prospect in
                         NavigationLink {
                             RosterDetailView(memberId: prospect.id)
