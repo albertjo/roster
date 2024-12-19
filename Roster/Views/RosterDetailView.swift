@@ -55,7 +55,7 @@ struct RosterDetailView: View {
                                     )
                             }
 
-                            Text("📆 \(String(member.dates.count)) Dates")
+                            Text("📆 \(String(member.dates.count))")
                                 .font(.mediumFont(.caption))
                                 .foregroundStyle(.white.opacity(0.4))
                                 .padding(.vertical, 6)

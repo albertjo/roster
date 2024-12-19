@@ -32,7 +32,7 @@ struct RosterMember: Identifiable {
     var memberType: MemberType // Roster Member vs. Prospect
     var upgradedDate: Date?
     var lastInteractionDate: Date?
-    var source: String // Bar, Club, Hinge, Etc
+    var source: MemberSource // Bar, Club, Hinge, Etc
     var stage: ProspectStage?
     var health: RosterMemberHealth? //
     var notes: String
@@ -72,6 +72,62 @@ struct Contact: Identifiable {
 enum MemberType: String, Codable {
     case prospect
     case rosterMember
+}
+
+enum MemberSource: String, Codable, CaseIterable {
+    // Online Dating
+    case hinge
+    case tinder
+    case bumble
+    case grindr
+    case feeld
+    case raya
+
+    // Social Networks
+    case instagram
+    case snapchat
+    case discord
+    case reddit
+
+    // IRL - Social
+    case bar
+    case club
+    case concert
+    case festival
+    case party
+    case wedding
+
+    // IRL - Daily Life
+    case work
+    case school
+    case gym
+    case coffee
+    case grocery
+    case mutualFriends
+
+    enum Category: String {
+        case datingApps = "Dating Apps"
+        case socialMedia = "Social Media"
+        case irlSocial = "IRL Social"
+        case irlDaily = "IRL Daily Life"
+    }
+
+    var category: Category {
+        switch self {
+        case .hinge, .tinder, .bumble, .grindr, .feeld, .raya:
+            return .datingApps
+        case .instagram, .snapchat, .discord, .reddit:
+            return .socialMedia
+        case .bar, .club, .concert, .festival, .party, .wedding:
+            return .irlSocial
+        case .work, .school, .gym, .coffee, .grocery, .mutualFriends:
+            return .irlDaily
+        }
+    }
+
+    static func sources(for category: Category) -> [MemberSource] {
+        allCases.filter { $0.category == category }
+    }
 }
 
 enum ProspectStage: String, Codable {
@@ -177,7 +233,7 @@ extension RosterStore {
                 memberType: .rosterMember,
                 upgradedDate: Calendar.current.date(byAdding: .day, value: -45, to: Date()),
                 lastInteractionDate: Calendar.current.date(byAdding: .day, value: -10, to: Date()),
-                source: "Hinge",
+                source: .hinge,
                 stage: .met,
                 health: .active,
                 notes: "Great chemistry, loves indie music, works in tech",
@@ -221,7 +277,7 @@ extension RosterStore {
                 memberType: .rosterMember,
                 upgradedDate: Calendar.current.date(byAdding: .day, value: -30, to: Date()),
                 lastInteractionDate: Calendar.current.date(byAdding: .day, value: -27, to: Date()),
-                source: "Bumble",
+                source: .bumble,
                 stage: .met,
                 health: .benched,
                 notes: "Taking it slow, great conversations",
@@ -260,7 +316,7 @@ extension RosterStore {
                 birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
-                source: "Friend Introduction",
+                source: .mutualFriends,
                 stage: .talking,
                 health: .active,
                 notes: "Friend of Alex, seems interesting",
@@ -286,7 +342,7 @@ extension RosterStore {
                 birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
-                source: "Hinge",
+                source: .hinge,
                 stage: .scheduled,
                 health: .active,
                 notes: "First date planned for next week at wine bar",
@@ -312,7 +368,7 @@ extension RosterStore {
                 birthday: nil,
                 memberType: .prospect,
                 upgradedDate: nil,
-                source: "Bar",
+                source: .bar,
                 stage: .matched,
                 health: .active,
                 notes: "Met at Warehouse, good initial conversation",

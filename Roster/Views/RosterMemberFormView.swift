@@ -165,7 +165,7 @@ class MemberFormViewModel: ObservableObject {
     @Published var memberType: MemberType
     @Published var upgradedDate: Date?
     @Published var lastInteractionDate: Date?
-    @Published var source: String
+    @Published var source: MemberSource
     @Published var prospectStage: ProspectStage?
     @Published var health: RosterMemberHealth?
     @Published var contact: Contact
@@ -252,7 +252,7 @@ class MemberFormViewModel: ObservableObject {
         case .creating(let memberType):
             self.name = ""
             self.memberType = memberType
-            self.source = ""
+            self.source = .hinge
             self.prospectStage = .matched
             self.health = .active
             self.contact = Contact(id: UUID(), createdAt: Date(), updatedAt: Date())
@@ -278,6 +278,7 @@ class MemberFormViewModel: ObservableObject {
         case .updating(var member):
             member.name = name
             member.avatarURL = avatarURL
+            member.birthday = birthday
             member.source = source
             member.stage = prospectStage
             member.health = health
