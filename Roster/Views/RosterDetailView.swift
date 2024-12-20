@@ -425,7 +425,7 @@ extension Date {
 #Preview {
     let _ = RosterStore.loadSampleData()
     NavigationStack {
-        RosterDetailView(memberId: RosterStore.shared.roster[0].id)
+        RosterDetailView(memberId: RosterStore.shared.all[0].id)
     }
     .environmentObject(RosterStore.shared)
 }

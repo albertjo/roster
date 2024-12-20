@@ -2,32 +2,33 @@ import SwiftUI
 import Foundation
 
 class RosterStore: ObservableObject {
-    @Published var roster: [RosterMember] = []
-    @Published var prospects: [RosterMember] = []
+    @Published var all: [RosterMember] = []
 
     static let shared = RosterStore()
 
-    func member(id: UUID) -> RosterMember? {
-        roster.first { $0.id == id } ?? prospects.first { $0.id == id }
-    }
-
-    func create(member: RosterMember) {
-        if member.memberType == .rosterMember {
-            roster.insert(member, at: 0)
-        } else {
-            prospects.insert(member, at: 0)
+    var roster: [RosterMember] {
+        return all.filter { member in
+            member.memberType == .rosterMember
         }
     }
 
+    var prospects: [RosterMember] {
+        return all.filter { member in
+            member.memberType == .prospect
+        }
+    }
+
+    func member(id: UUID) -> RosterMember? {
+        all.first { $0.id == id } //?? prospects.first { $0.id == id }
+    }
+
+    func create(member: RosterMember) {
+        all.insert(member, at: 0)
+    }
+
     func update(member: RosterMember) {
-        if member.memberType == .rosterMember {
-            if let index = roster.firstIndex(where: { $0.id == member.id }) {
-                roster[index] = member
-            }
-        } else {
-            if let index = prospects.firstIndex(where: { $0.id == member.id }) {
-                prospects[index] = member
-            }
+        if let index = all.firstIndex(where: { $0.id == member.id }) {
+            all[index] = member
         }
     }
 }
@@ -440,7 +441,6 @@ extension RosterStore {
             )
         ]
 
-        store.roster = rosterMembers
-        store.prospects = prospects
+        store.all = rosterMembers + prospects
     }
 }
