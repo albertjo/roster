@@ -47,7 +47,7 @@ struct RosterView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 10) {
-                    ForEach(rosterStore.allMembers) { rosterMember in
+                    ForEach(rosterStore.roster) { rosterMember in
                         NavigationLink {
                             RosterDetailView(memberId: rosterMember.id)
                         } label: {
