@@ -42,7 +42,7 @@ struct RosterMember: Identifiable {
     var lastInteractionDate: Date?
     var source: MemberSource // Bar, Club, Hinge, Etc
     var stage: ProspectStage
-    var health: RosterMemberHealth? //
+    var health: RosterMemberHealth //
     var notes: String
     var contact: Contact
     var labels: Set<String>
@@ -200,14 +200,14 @@ enum ProspectStage: String, Codable, CaseIterable {
     }
 
     var emojiText: String {
-        return "\(emoji) \(rawValue)"
+        return "\(emoji) \(rawValue.capitalizedFirstLetter)"
     }
 }
 
-enum RosterMemberHealth: String, Codable {
+enum RosterMemberHealth: String, Codable, CaseIterable {
     case active
     case benched // Taking a break
-    case archived // Ended but on good terms
+    case retired // Ended but on good terms
 
     var isActive: Bool {
         return self == .active || self == .benched
@@ -219,7 +219,7 @@ enum RosterMemberHealth: String, Codable {
             return .green
         case .benched:
             return .yellow
-        case .archived:
+        case .retired:
             return .gray
         }
     }
@@ -230,7 +230,7 @@ enum RosterMemberHealth: String, Codable {
             return "circle.fill"
         case .benched:
             return "pause.fill"
-        case .archived:
+        case .retired:
             return "pause.fill"
         }
     }

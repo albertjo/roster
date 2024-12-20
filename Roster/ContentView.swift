@@ -47,7 +47,7 @@ struct RosterView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 10) {
-                    ForEach(rosterStore.roster) { rosterMember in
+                    ForEach(rosterStore.allMembers) { rosterMember in
                         NavigationLink {
                             RosterDetailView(memberId: rosterMember.id)
                         } label: {
@@ -105,8 +105,8 @@ struct RosterCardView: View {
             }
             Spacer()
 
-            if !isProspect, let health = rosterMember.health {
-                HealthIndicator(health: health)
+            if !isProspect {
+                HealthIndicator(health: rosterMember.health)
             } else {
                 ProspectStageIndicator(stage: rosterMember.stage)
             }

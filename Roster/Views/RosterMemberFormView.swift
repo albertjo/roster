@@ -43,7 +43,27 @@ struct RosterMemberFormView: View {
 
                     if memberFormViewModel.memberType == .prospect {
                         ProspectStagePicker(stage: $memberFormViewModel.prospectStage)
+                    } else {
+                        RosterMemberHealthPicker(health: $memberFormViewModel.health)
                     }
+                }
+
+                if memberFormViewModel.memberType == .prospect, case .updating = memberFormViewModel.mode {
+                    Button {
+                        memberFormViewModel.memberType = .rosterMember
+                    } label: {
+                        HStack {
+                            Text("💖 Upgrade to Roster")
+                                .font(.logoFont(.subheadline))
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(.white)
+                    }
+                    .tint(.black)
+                    .listRowBackground(Color.clear)  // Makes row background transparent
+                    .listRowInsets(EdgeInsets())
+
                 }
 
                 Section("Contact") {
@@ -222,6 +242,56 @@ private struct MemberSourcePicker: View {
     }
 }
 
+private struct RosterMemberHealthPicker: View {
+    @Binding var health: RosterMemberHealth
+    @State var showingSheet = false
+
+    var body: some View {
+        LabeledContent("Health") {
+            Button {
+                showingSheet = true
+            } label: {
+                HStack {
+                    Image(systemName: "circle.fill")
+                        .foregroundStyle(health.color)
+                        .font(.caption)
+                    Text(health.rawValue)
+                }
+            }
+            .tint(.white)
+        }
+        .sheet(isPresented: $showingSheet) {
+            NavigationStack {
+                VStack {
+                    ForEach(RosterMemberHealth.allCases, id: \.self) { memberHealth in
+                        Button {
+                            health = memberHealth
+                            showingSheet = false
+                        } label: {
+                            HStack {
+                                Image(systemName: "circle.fill")
+                                    .foregroundStyle(memberHealth.color)
+                                    .font(.caption)
+                                Text(memberHealth.rawValue)
+                                Spacer()
+                            }
+                            .padding()
+                            .background(health == memberHealth ? .white.opacity(0.1) : .clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))  // Add this line
+                        }
+                        .tint(.white)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle("Roster Member Health")
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium])
+        }
+    }
+}
+
 private struct ProspectStagePicker: View {
     @Binding var stage: ProspectStage
     @State var showingSheet = false
@@ -281,7 +351,7 @@ class MemberFormViewModel: ObservableObject {
     @Published var lastInteractionDate: Date?
     @Published var source: MemberSource
     @Published var prospectStage: ProspectStage
-    @Published var health: RosterMemberHealth?
+    @Published var health: RosterMemberHealth
     @Published var notes: String
     @Published var contact: Contact
     @Published var labels: Set<String>
@@ -338,13 +408,6 @@ class MemberFormViewModel: ObservableObject {
         )
     }
 
-    var healthBinding: Binding<RosterMemberHealth?> {
-        Binding(
-            get: { self.health },
-            set: { self.health = $0 }
-        )
-    }
-
     var validate: Bool {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return false
@@ -386,6 +449,7 @@ class MemberFormViewModel: ObservableObject {
         switch mode {
         case .updating(var member):
             member.name = name
+            member.memberType = memberType
             member.avatarURL = avatarURL
             member.birthday = birthday
             member.source = source
@@ -394,6 +458,7 @@ class MemberFormViewModel: ObservableObject {
             member.contact = contact
             member.labels = labels
             member.updatedAt = Date()
+            print(member.memberType.rawValue)
             store.update(member: member)
         default:
             let newMember = RosterMember(id: UUID(),
@@ -401,6 +466,7 @@ class MemberFormViewModel: ObservableObject {
                                          memberType: memberType,
                                          source: source,
                                          stage: prospectStage,
+                                         health: health,
                                          notes: notes,
                                          contact: contact,
                                          labels: labels,

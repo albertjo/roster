@@ -38,9 +38,8 @@ struct RosterDetailView: View {
 
                         // Stats
                         HStack {
-                            if member.memberType == .rosterMember,
-                               let health = member.health {
-                                HealthIndicator(health: health)
+                            if member.memberType == .rosterMember {
+                                HealthIndicator(health: member.health)
                             } else {
                                 ProspectStageIndicator(stage: member.stage)
                             }
@@ -115,7 +114,7 @@ struct RosterDetailView: View {
                             if isRosterMember, let upgradedDate = member.upgradedDate {
                                 Text("On Rotation Since \(upgradedDate.longDateString)")
                             } else {
-                                Text("Added on \(member.createdAt.longDateString)")
+                                Text("Added On \(member.createdAt.longDateString)")
                             }
                         }
                         .font(.mediumFont(.caption))
@@ -426,7 +425,7 @@ extension Date {
 #Preview {
     let _ = RosterStore.loadSampleData()
     NavigationStack {
-        RosterDetailView(memberId: RosterStore.shared.roster[0].id)
+        RosterDetailView(memberId: RosterStore.shared.allMembers[0].id)
     }
     .environmentObject(RosterStore.shared)
 }
