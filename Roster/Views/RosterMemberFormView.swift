@@ -340,7 +340,7 @@ enum MemberFormMode {
 }
 
 class MemberFormViewModel: ObservableObject {
-    private var store: RosterStore { RosterStore.shared }
+    private var store: RosterMemberStore { RosterMemberStore.shared }
     let mode: MemberFormMode
 
     @Published var name: String
@@ -479,7 +479,6 @@ class MemberFormViewModel: ObservableObject {
                                          notes: notes,
                                          contact: contact,
                                          labels: labels,
-                                         dates: [],
                                          createdAt: Date(),
                                          updatedAt: Date())
             store.create(member: newMember)
@@ -550,6 +549,6 @@ extension String {
 }
 
 #Preview {
-    let _ = RosterStore.loadSampleData()
+    let _ = RosterMemberStore.loadSampleData()
     RosterMemberFormView(mode: .creating(.prospect))
 }

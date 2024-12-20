@@ -54,6 +54,7 @@ struct DateNavigationLink: View {
 
 #Preview {
     let date = RosterDate(id: UUID(),
+                          memberId: UUID(),
                           date: Date(),
                           vibe: .amazing,
                           intimacyLevel: .hookup,

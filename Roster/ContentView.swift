@@ -41,7 +41,7 @@ struct ContentView: View {
 }
 
 struct RosterView: View {
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
     
     var body: some View {
         NavigationStack {
@@ -119,7 +119,7 @@ struct RosterCardView: View {
 }
 
 struct ProspectView: View {
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
 
     var body: some View {
         NavigationStack {
@@ -146,7 +146,7 @@ struct ProspectView: View {
 }
 
 struct SettingsView: View {
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
 
     var body: some View {
         NavigationStack {
@@ -228,7 +228,7 @@ extension Date {
 }
 
 #Preview {
-    let _ = RosterStore.loadSampleData()
+    let _ = RosterMemberStore.loadSampleData()
     ContentView()
-        .environmentObject(RosterStore.shared)
+        .environmentObject(RosterMemberStore.shared)
 }

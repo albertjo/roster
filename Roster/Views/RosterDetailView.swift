@@ -2,7 +2,8 @@ import SwiftUI
 import MapKit
 
 struct RosterDetailView: View {
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
+    @EnvironmentObject var rosterDateStore: RosterDateStore
     let memberId: UUID
     
     @State var showingEditSheet = false
@@ -13,8 +14,10 @@ struct RosterDetailView: View {
 
     var body: some View {
         if let member = member {
+            let dates = rosterDateStore.dates(for: memberId)
             List {
                 let isRosterMember = member.memberType == .rosterMember
+
                 Section {
                     VStack(spacing: 20) {
                         Circle().fill(.white.opacity(0.2)).frame(height: UIScreen.main.bounds.width / 3)
@@ -56,7 +59,7 @@ struct RosterDetailView: View {
                                     )
                             }
 
-                            Text("📆 \(String(member.dates.count))")
+                            Text("📆 \(dates.count))")
                                 .font(.mediumFont(.caption))
                                 .foregroundStyle(.white.opacity(0.4))
                                 .padding(.vertical, 6)
@@ -251,25 +254,27 @@ struct DatesSectionView: View {
         case past = "Past"
     }
 
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
+    @EnvironmentObject var rosterDateStore: RosterDateStore
     let memberId: UUID
 
     @State var selectedDateType = DateType.future
 
     private var futureDates: [RosterDate] {
-        return rosterStore.member(id: memberId)?.dates.filter({ rosterDate in
+        return rosterDateStore.dates(for: memberId).filter({ rosterDate in
             return rosterDate.date.isFutureOrToday
-        }) ?? []
+        })
     }
 
     private var pastDates: [RosterDate] {
-        return rosterStore.member(id: memberId)?.dates.filter({ rosterDate in
+        return rosterDateStore.dates(for: memberId).filter({ rosterDate in
             return !rosterDate.date.isFutureOrToday
-        }) ?? []
+        })
     }
 
     var body: some View {
         if let member = rosterStore.member(id: memberId) {
+            let dates = rosterDateStore.dates(for: memberId)
             Section {
                 VStack {
                     Spacer().frame(height: 20)
@@ -310,7 +315,7 @@ struct DatesSectionView: View {
                             DatesView(rosterMember: member)
                         }
                         .tint(.white)
-                        .disabled(member.dates.isEmpty)
+                        .disabled(dates.isEmpty)
                     }
                     .textCase(nil)
                 }
@@ -376,7 +381,7 @@ struct DatesSectionView: View {
 }
 
 struct DatesView: View {
-    @EnvironmentObject var rosterStore: RosterStore
+    @EnvironmentObject var rosterStore: RosterMemberStore
     let rosterMember: RosterMember
     @State var dates: [RosterDate] = []
 
@@ -408,7 +413,7 @@ struct DatesView: View {
             }
         }
         .task {
-            dates = rosterMember.dates
+            //dates = rosterMember.dates
         }
     }
 }
@@ -423,9 +428,11 @@ extension Date {
 }
 
 #Preview {
-    let _ = RosterStore.loadSampleData()
+    let _ = RosterMemberStore.loadSampleData()
+    let _ = RosterDateStore.loadSampleData()
     NavigationStack {
-        RosterDetailView(memberId: RosterStore.shared.all[0].id)
+        RosterDetailView(memberId: RosterMemberStore.shared.all[0].id)
     }
-    .environmentObject(RosterStore.shared)
+    .environmentObject(RosterMemberStore.shared)
+    .environmentObject(RosterDateStore.shared)
 }

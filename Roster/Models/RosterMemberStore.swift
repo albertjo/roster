@@ -1,10 +1,10 @@
 import SwiftUI
 import Foundation
 
-class RosterStore: ObservableObject {
+class RosterMemberStore: ObservableObject {
     @Published var all: [RosterMember] = []
 
-    static let shared = RosterStore()
+    static let shared = RosterMemberStore()
 
     var roster: [RosterMember] {
         return all.filter { member in
@@ -33,6 +33,34 @@ class RosterStore: ObservableObject {
     }
 }
 
+class RosterDateStore: ObservableObject {
+    @Published var all: [RosterDate] = []
+
+    static let shared = RosterDateStore()
+
+    func dates(for memberId: UUID) -> [RosterDate] {
+        all.filter { $0.memberId == memberId }
+    }
+
+    func date(id: UUID) -> RosterDate? {
+        all.first { $0.id == id }
+    }
+
+    func create(date: RosterDate) {
+        all.insert(date, at: 0)
+    }
+
+    func update(date: RosterDate) {
+        if let index = all.firstIndex(where: { $0.id == date.id }) {
+            all[index] = date
+        }
+    }
+
+    func delete(date: RosterDate) {
+        all.removeAll { $0.id == date.id }
+    }
+}
+
 struct RosterMember: Identifiable {
     let id: UUID
     var name: String
@@ -47,7 +75,6 @@ struct RosterMember: Identifiable {
     var notes: String
     var contact: Contact
     var labels: Set<String>
-    var dates: [RosterDate]
     var createdAt: Date
     var updatedAt: Date
 
@@ -59,6 +86,7 @@ struct RosterMember: Identifiable {
 
 struct RosterDate: Identifiable {
     let id: UUID
+    let memberId: UUID
     var date: Date
     var vibe: DateVibe
     var intimacyLevel: IntimacyLevel
@@ -271,14 +299,14 @@ enum IntimacyLevel: String, Codable {
     }
 }
 
-extension RosterStore {
+extension RosterMemberStore {
     static func loadSampleData() {
-        let store = RosterStore.shared
+        let store = RosterMemberStore.shared
 
         // MARK: - Sample Roster Members
         let rosterMembers: [RosterMember] = [
             RosterMember(
-                id: UUID(),
+                id: UUID(uuidString: "1E2F3D4C-5B6A-7890-1234-567890ABCDEF")!,
                 name: "Sarah",
                 avatarURL: URL(string: "https://example.com/sarah.jpg"),
                 birthday: Calendar.current.date(byAdding: .year, value: -27, to: Date()),
@@ -300,29 +328,11 @@ extension RosterStore {
                     updatedAt: Date()
                 ),
                 labels: ["Foodie", "Tech", "Artsy"],
-                dates: [
-                    RosterDate(
-                        id: UUID(),
-                        date: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
-                        vibe: .amazing,
-                        intimacyLevel: .overnight,
-                        spentAmount: 85.0,
-                        notes: "Dinner at Italian place, then drinks at rooftop bar"
-                    ),
-                    RosterDate(
-                        id: UUID(),
-                        date: Calendar.current.date(byAdding: .day, value: -21, to: Date())!,
-                        vibe: .good,
-                        intimacyLevel: .hookup,
-                        spentAmount: 40.0,
-                        notes: "Coffee and walk in the park, came over after"
-                    )
-                ],
                 createdAt: Date(),
                 updatedAt: Date()
             ),
             RosterMember(
-                id: UUID(),
+                id: UUID(uuidString: "2A3B4C5D-6E7F-8901-2345-678901BCDEF0")!,
                 name: "Jessica",
                 avatarURL: URL(string: "https://example.com/jessica.jpg"),
                 birthday: Calendar.current.date(byAdding: .year, value: -25, to: Date()),
@@ -344,16 +354,6 @@ extension RosterStore {
                     updatedAt: Date()
                 ),
                 labels: ["Yoga", "Vegan", "Writer"],
-                dates: [
-                    RosterDate(
-                        id: UUID(),
-                        date: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
-                        vibe: .good,
-                        intimacyLevel: .kissing,
-                        spentAmount: 60.0,
-                        notes: "Vegan restaurant and art gallery"
-                    )
-                ],
                 createdAt: Date(),
                 updatedAt: Date()
             )
@@ -362,7 +362,7 @@ extension RosterStore {
         // MARK: - Sample Prospects
         let prospects: [RosterMember] = [
             RosterMember(
-                id: UUID(),
+                id: UUID(uuidString: "3B4C5D6E-7F8A-9012-3456-789012CDEF01")!,
                 name: "Emma",
                 avatarURL: URL(string: "https://example.com/emma.jpg"),
                 birthday: nil,
@@ -383,12 +383,11 @@ extension RosterStore {
                     updatedAt: Date()
                 ),
                 labels: ["Friend of Friend", "Doctor"],
-                dates: [],
                 createdAt: Date(),
                 updatedAt: Date()
             ),
             RosterMember(
-                id: UUID(),
+                id: UUID(uuidString: "4D5E6F7A-8B9C-0123-4567-89012DEFAB12")!,
                 name: "Madison",
                 avatarURL: URL(string: "https://example.com/madison.jpg"),
                 birthday: nil,
@@ -409,12 +408,11 @@ extension RosterStore {
                     updatedAt: Date()
                 ),
                 labels: ["Finance", "Gym"],
-                dates: [],
                 createdAt: Date(),
                 updatedAt: Date()
             ),
             RosterMember(
-                id: UUID(),
+                id: UUID(uuidString: "5E6F7A8B-9C0D-1234-5678-90123EFABC23")!,
                 name: "Olivia",
                 avatarURL: URL(string: "https://example.com/olivia.jpg"),
                 birthday: nil,
@@ -435,12 +433,46 @@ extension RosterStore {
                     updatedAt: Date()
                 ),
                 labels: ["Met IRL", "Bartender"],
-                dates: [],
                 createdAt: Date(),
                 updatedAt: Date()
             )
         ]
 
         store.all = rosterMembers + prospects
+    }
+}
+
+extension RosterDateStore {
+    static func loadSampleData() {
+        let store = RosterDateStore.shared
+        store.all = [
+            RosterDate(
+                id: UUID(),
+                memberId: UUID(uuidString: "1E2F3D4C-5B6A-7890-1234-567890ABCDEF")!,
+                date: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
+                vibe: .amazing,
+                intimacyLevel: .overnight,
+                spentAmount: 85.0,
+                notes: "Dinner at Italian place, then drinks at rooftop bar"
+            ),
+            RosterDate(
+                id: UUID(),
+                memberId: UUID(uuidString: "1E2F3D4C-5B6A-7890-1234-567890ABCDEF")!,
+                date: Calendar.current.date(byAdding: .day, value: -21, to: Date())!,
+                vibe: .good,
+                intimacyLevel: .hookup,
+                spentAmount: 40.0,
+                notes: "Coffee and walk in the park, came over after"
+            ),
+            RosterDate(
+                id: UUID(uuidString: "2A3B4C5D-6E7F-8901-2345-678901BCDEF0")!,
+                memberId: UUID(),
+                date: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
+                vibe: .good,
+                intimacyLevel: .kissing,
+                spentAmount: 60.0,
+                notes: "Vegan restaurant and art gallery"
+            )
+        ]
     }
 }

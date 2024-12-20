@@ -3,7 +3,8 @@ import SwiftUI
 @main
 struct RosterApp: App {
     init() {
-        let _ = RosterStore.loadSampleData()
+        RosterMemberStore.loadSampleData()
+        RosterDateStore.loadSampleData()
 //        UINavigationBar.appearance().largeTitleTextAttributes = [
 //            .font: Font.custom("FKGroteskTrial-Bold", size: 36) //UIFont.systemFont(ofSize: 14, weight: .bold)
 //        ]
@@ -14,6 +15,7 @@ struct RosterApp: App {
         WindowGroup {
             ContentView()
         }
-        .environmentObject(RosterStore.shared)
+        .environmentObject(RosterMemberStore.shared)
+        .environmentObject(RosterDateStore.shared)
     }
 }

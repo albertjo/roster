@@ -5,15 +5,19 @@ struct DateDetailView: View {
     var body: some View {
         List {
             Text(date.date.relativeString)
-
         }
     }
 }
 
 #Preview {
-    let  _ = RosterStore.loadSampleData()
+    let  _ = RosterMemberStore.loadSampleData()
     NavigationStack {
-        DateDetailView(date: RosterDate(id: UUID(), date: Date(), vibe: .amazing, intimacyLevel: .overnight, notes: "Went to a concert, had late night dinner at home."))
+        DateDetailView(date: RosterDate(id: UUID(),
+                                        memberId: UUID(),
+                                        date: Date(),
+                                        vibe: .amazing,
+                                        intimacyLevel: .overnight,
+                                        notes: "Went to a concert, had late night dinner at home."))
     }
-    .environmentObject(RosterStore.shared)
+    .environmentObject(RosterMemberStore.shared)
 }
