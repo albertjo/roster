@@ -50,7 +50,7 @@ struct RosterMemberFormView: View {
 
                 if memberFormViewModel.memberType == .prospect, case .updating = memberFormViewModel.mode {
                     Button {
-                        memberFormViewModel.memberType = .rosterMember
+                        memberFormViewModel.upgradeToRoster()
                     } label: {
                         HStack {
                             Text("💖 Upgrade to Roster")
@@ -422,6 +422,7 @@ class MemberFormViewModel: ObservableObject {
         case .creating(let memberType):
             self.name = ""
             self.memberType = memberType
+            self.upgradedDate = memberType == .rosterMember ? Date(): nil
             self.source = .hinge
             self.prospectStage = .matched
             self.health = .active
@@ -445,11 +446,19 @@ class MemberFormViewModel: ObservableObject {
         }
     }
 
+    func upgradeToRoster() {
+        if case .updating = mode, memberType == .prospect {
+            memberType = .rosterMember
+            upgradedDate = Date()
+        }
+    }
+
     func save() {
         switch mode {
         case .updating(var member):
             member.name = name
             member.memberType = memberType
+            member.upgradedDate = upgradedDate
             member.avatarURL = avatarURL
             member.birthday = birthday
             member.source = source
@@ -458,12 +467,12 @@ class MemberFormViewModel: ObservableObject {
             member.contact = contact
             member.labels = labels
             member.updatedAt = Date()
-            print(member.memberType.rawValue)
             store.update(member: member)
         default:
             let newMember = RosterMember(id: UUID(),
                                          name: name,
                                          memberType: memberType,
+                                         upgradedDate: upgradedDate,
                                          source: source,
                                          stage: prospectStage,
                                          health: health,
