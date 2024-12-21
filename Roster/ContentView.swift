@@ -231,4 +231,5 @@ extension Date {
     let _ = RosterMemberStore.loadSampleData()
     ContentView()
         .environmentObject(RosterMemberStore.shared)
+        .environmentObject(RosterDateStore.shared)
 }

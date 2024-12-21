@@ -20,7 +20,7 @@ struct RosterDetailView: View {
 
                 Section {
                     VStack(spacing: 20) {
-                        Circle().fill(.white.opacity(0.2)).frame(height: UIScreen.main.bounds.width / 3)
+                        Circle().fill(.white.opacity(0.1)).frame(height: UIScreen.main.bounds.width / 3)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
                     .listRowBackground(Color.clear)  // Makes row background transparent
@@ -312,7 +312,7 @@ struct DatesSectionView: View {
                         Spacer()
 
                         NavigationLink("See All") {
-                            DatesView(rosterMember: member)
+                            RosterDatesView(rosterMember: member)
                         }
                         .tint(.white)
                         .disabled(dates.isEmpty)
@@ -357,31 +357,21 @@ struct DatesSectionView: View {
 
     private var selectedDatesView: some View {
         Group {
-            let dates = selectedDateType == .future ? futureDates : pastDates
-            VStack(spacing: 20) {
-                ForEach(dates, id: \.id) { date in
-                    DateNavigationLink(date: date)
+            if let member = rosterStore.member(id: memberId) {
+                let dates = selectedDateType == .future ? futureDates : pastDates
+                VStack(spacing: 20) {
+                    ForEach(dates, id: \.id) { date in
+                        DateNavigationLink(member: member, date: date)
+                    }
                 }
             }
         }
-
-//        if futureDates.isEmpty {
-//            Spacer().frame(height: 20)
-//            Text("No Scheduled Dates Yet 🥀")
-//                .font(.mediumFont(.caption))
-//                .foregroundStyle(.white.opacity(0.5))
-//        } else {
-//            VStack(spacing: 20) {
-//                ForEach(futureDates, id: \.id) { date in
-//                    DateNavigationLink(date: date)
-//                }
-//            }
-//        }
     }
 }
 
-struct DatesView: View {
+private struct RosterDatesView: View {
     @EnvironmentObject var rosterStore: RosterMemberStore
+    @EnvironmentObject var rosterDateStore: RosterDateStore
     let rosterMember: RosterMember
     @State var dates: [RosterDate] = []
 
@@ -389,7 +379,7 @@ struct DatesView: View {
         ScrollView {
             VStack(spacing: 20) {
                 ForEach(dates, id: \.id) { date in
-                    DateNavigationLink(date: date)
+                    DateNavigationLink(member: rosterMember, date: date)
                 }
             }
         }
@@ -413,7 +403,7 @@ struct DatesView: View {
             }
         }
         .task {
-            //dates = rosterMember.dates
+            dates = rosterDateStore.dates(for: rosterMember.id)
         }
     }
 }

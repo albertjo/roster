@@ -37,6 +37,7 @@ struct DateCardView: View {
 }
 
 struct DateNavigationLink: View {
+    let member: RosterMember
     let date: RosterDate
     @State private var isActive = false
 
@@ -47,20 +48,32 @@ struct DateNavigationLink: View {
             DateCardView(date: date)
         }
         .navigationDestination(isPresented: $isActive) {
-            DateDetailView(date: date)
+            DateDetailView(member: member, date: date)
         }
     }
 }
 
 #Preview {
+    let memberId = UUID()
+    let member = RosterMember(id: memberId,
+                              name: "Albert",
+                              memberType: .rosterMember,
+                              source: .bumble,
+                              stage: .matched,
+                              health: .active,
+                              notes: "",
+                              contact: Contact(id: UUID(), createdAt: Date(), updatedAt: Date()),
+                              labels: [],
+                              createdAt: Date(),
+                              updatedAt: Date())
     let date = RosterDate(id: UUID(),
-                          memberId: UUID(),
+                          memberId: memberId,
                           date: Date(),
                           vibe: .amazing,
                           intimacyLevel: .hookup,
                           spentAmount: 50.0,
                           notes: "Went to farmer's market, grabbed lunch, and watched a movie at home.")
     NavigationStack {
-        DateNavigationLink(date: date)
+        DateNavigationLink(member: member, date: date)
     }
 }
