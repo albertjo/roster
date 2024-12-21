@@ -42,6 +42,21 @@ class RosterDateStore: ObservableObject {
         all.filter { $0.memberId == memberId }
     }
 
+    func dates(for rosterDateType: RosterDateType) -> [RosterDate] {
+        switch rosterDateType {
+        case .future:
+            return all.filter({ rosterDate in
+                return rosterDate.date.isFutureOrToday
+            })
+        case .past:
+            return all.filter({ rosterDate in
+                return !rosterDate.date.isFutureOrToday
+            })
+        case .all:
+            return all
+        }
+    }
+
     func date(id: UUID) -> RosterDate? {
         all.first { $0.id == id }
     }
@@ -59,6 +74,12 @@ class RosterDateStore: ObservableObject {
     func delete(date: RosterDate) {
         all.removeAll { $0.id == date.id }
     }
+}
+
+enum RosterDateType: String, CaseIterable {
+    case future = "📆 Upcoming"
+    case past = "Past"
+    case all = "All"
 }
 
 struct RosterMember: Identifiable {
@@ -88,8 +109,8 @@ struct RosterDate: Identifiable {
     let id: UUID
     let memberId: UUID
     var date: Date
-    var vibe: DateVibe
-    var intimacyLevel: IntimacyLevel
+    var vibe: DateVibe?
+    var intimacyLevel: IntimacyLevel?
     var spentAmount: Double?
     var notes: String
 }
@@ -472,7 +493,16 @@ extension RosterDateStore {
                 intimacyLevel: .kissing,
                 spentAmount: 60.0,
                 notes: "Vegan restaurant and art gallery"
-            )
+            ),
+            RosterDate(
+                id: UUID(),
+                memberId: UUID(uuidString: "1E2F3D4C-5B6A-7890-1234-567890ABCDEF")!,
+                date: Calendar.current.date(byAdding: .day, value: 7, to: Date())!,
+                vibe: .amazing,
+                intimacyLevel: .overnight,
+                spentAmount: 85.0,
+                notes: "Dinner at Italian place, then drinks at rooftop bar"
+            ),
         ]
     }
 }

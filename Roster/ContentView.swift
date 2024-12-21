@@ -30,7 +30,7 @@ struct ContentView: View {
                 }
                 .tag(1)
 
-            SettingsView()
+            DatesView()
                 .tabItem {
                     Label("Dates", systemImage: "calendar")
                 }
@@ -229,6 +229,7 @@ extension Date {
 
 #Preview {
     let _ = RosterMemberStore.loadSampleData()
+    let _ = RosterDateStore.loadSampleData()
     ContentView()
         .environmentObject(RosterMemberStore.shared)
         .environmentObject(RosterDateStore.shared)

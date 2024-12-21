@@ -26,15 +26,17 @@ struct DateDetailView: View {
                     .padding()
 
                     HStack {
-                        DataBadge(string: date.vibe.pillText)
-
-                        if let intimacyPillText = date.intimacyLevel.pillText {
-                            DataBadge(string: intimacyPillText)
+                        if let vibe = date.vibe {
+                            DataBadge(string: vibe.pillText)
                         }
 
+                        if let intimacyLevel = date.intimacyLevel, let pillText = intimacyLevel.pillText {
+                            DataBadge(string: pillText)
+                        }
+                        
                         Spacer()
                     }
-                    .padding(.horizontal) 
+                    .padding(.horizontal)
                 }
                 .padding(.bottom, 20)
 
@@ -52,14 +54,6 @@ struct DateDetailView: View {
                     Text(date.notes)
                         .font(.subheadline)
 
-
-//                    Text(date.notes)
-//                        .frame(maxWidth: .infinity)
-//                        .padding()
-//                        .overlay {
-//                            RoundedRectangle(cornerRadius: 10)
-//                                .strokeBorder(.gray.opacity(0.3), lineWidth: 2)
-//                        }
                     Spacer(minLength: 600)
                 }
                 .frame(maxWidth: .infinity)
@@ -75,48 +69,6 @@ struct DateDetailView: View {
                 Color.black
             }
         )
-        /*
-        List {
-            Section {
-                HStack {
-                    Circle().fill(.white.opacity(0.2)).frame(height: 70)
-
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(member.name)
-                                .font(.title)
-                            if let age = member.age {
-                                Text("\(age)")
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-            }
-
-            HStack {
-                DataBadge(string: date.vibe.pillText)
-
-                if let intimacyPillText = date.intimacyLevel.pillText {
-                    DataBadge(string: intimacyPillText)
-                }
-            }
-            .listRowBackground(Color.clear)  // Makes row background transparent
-            .listRowInsets(EdgeInsets())
-
-            Section("Notes") {
-                Text(date.notes)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(.gray.opacity(0.3), lineWidth: 2)
-                    }
-            }
-            .listRowBackground(Color.clear)  // Makes row background transparent
-            .listRowInsets(EdgeInsets())
-        }
-         */
         .navigationTitle(date.date.longDateString)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

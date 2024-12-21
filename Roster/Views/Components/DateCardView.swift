@@ -18,10 +18,12 @@ struct DateCardView: View {
                 .multilineTextAlignment(.leading)
 
             HStack {
-                DataBadge(string: date.vibe.pillText)
+                if let vibe = date.vibe {
+                    DataBadge(string: vibe.pillText)
+                }
 
-                if let intimacyPillText = date.intimacyLevel.pillText {
-                    DataBadge(string: intimacyPillText)
+                if let intimacyLevel = date.intimacyLevel, let pillText = intimacyLevel.pillText {
+                    DataBadge(string: pillText)
                 }
             }
         }
